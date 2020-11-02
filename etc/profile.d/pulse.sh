@@ -1,0 +1,1 @@
+pulseaudio -D --high-priority=true --realtime=true --exit-idle-time=-1 --no-cpu-limit

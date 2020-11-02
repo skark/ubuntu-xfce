@@ -9,6 +9,8 @@ else
    dpkg-reconfigure -f noninteractive tzdata
 fi
 
+mkdir -p cd /etc/sudoers.d
+
 #CREATE USERS.
 # username:passsword:Y
 # username2:password2:Y
@@ -54,5 +56,6 @@ if [ ! -d /run/sshd ]; then
    chmod 0755 /run/sshd
 fi
 
+/usr/bin/pulseaudio -D --high-priority=true --system=true --realtime=true --exit-idle-time=-1 --no-cpu-limit
 #This has to be the last command!
 /usr/bin/supervisord -n
