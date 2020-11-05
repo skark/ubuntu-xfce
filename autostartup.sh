@@ -14,6 +14,7 @@ mkdir -p /var/run/dbus
 dbus-daemon --config-file=/usr/share/dbus-1/system.conf --print-address
 
 mkdir -p cd /etc/sudoers.d
+echo "%sudo ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/sudoersnopwd
 
 #CREATE USERS.
 # username:passsword:Y
