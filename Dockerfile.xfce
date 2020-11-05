@@ -83,7 +83,9 @@ RUN sed -i '/TerminalServerUsers/d' /final/etc/xrdp/sesman.ini  && \
 RUN mkdir -p /final/var/run/xrdp && \
     chmod 2775 /final/var/run/xrdp  && \
     mkdir -p /final/var/run/xrdp/sockdir && \
-    chmod 3777 /final/var/run/xrdp/sockdir   
+    chmod 3777 /final/var/run/xrdp/sockdir && \
+    mkdir -p /final/run/dbus && \
+    mkdir -p /final/var/run/dbus
 
 ADD etc /final/etc
 
