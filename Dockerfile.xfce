@@ -1,4 +1,4 @@
-FROM ubuntu:latest as builder
+FROM ubuntu:rolling as builder
 
 SHELL ["/bin/bash", "-c"]
 
@@ -85,13 +85,13 @@ RUN mkdir -p /final/var/run/xrdp && \
     mkdir -p /final/var/run/xrdp/sockdir && \
     chmod 3777 /final/var/run/xrdp/sockdir
 
-ADD etc /final/etc
+COPY etc /final/etc
 
-ADD autostartup.sh /final/root/autostartup.sh
+COPY autostartup.sh /final/root/autostartup.sh
     
 RUN ls -alR /final
 
-FROM ubuntu:latest
+FROM ubuntu:rolling
 
 RUN set -o xtrace && \
     export DEBIAN_FRONTEND=noninteractive && \
