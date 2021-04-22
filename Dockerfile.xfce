@@ -1,4 +1,4 @@
-FROM ubuntu:rolling as builder
+FROM ubuntu:latest as builder
 
 SHELL ["/bin/bash", "-c"]
 
@@ -91,7 +91,7 @@ COPY autostartup.sh /final/root/autostartup.sh
     
 RUN ls -alR /final
 
-FROM ubuntu:rolling
+FROM ubuntu:latest
 
 RUN set -o xtrace && \
     export DEBIAN_FRONTEND=noninteractive && \
@@ -102,7 +102,6 @@ RUN set -o xtrace && \
     apt-get install -yqq locales  && \ 
     apt-get install --no-install-recommends -yqq \
 	xfwm4 xfdesktop4 xfce4-panel xfce4-session dbus-x11 \
-	humanity-icon-theme \
 	xfce4-clipman-plugin \
 	xfce4-cpugraph-plugin \
 	xfce4-netload-plugin \
