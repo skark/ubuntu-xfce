@@ -110,23 +110,23 @@ RUN set -o xtrace && \
 	xfce4-taskmanager \
 	xfce4-terminal \	
 	ristretto \
-        heif-gdk-pixbuf \	
+	heif-gdk-pixbuf \	
 	parole \
 	thunar \
 	tumbler \
 	geany \
-        pulseaudio \
-        ca-certificates \
-        curl \
-        sudo \
-        supervisor \
-        cron \
-        tzdata \
-        wget \
-        xserver-xorg-core \
-        x11-xserver-utils \
-        librsvg2-common \
-        xz-utils && \
+	pulseaudio \
+	ca-certificates \
+	curl \
+	sudo \
+	supervisor \
+	cron \
+	tzdata \
+	wget \
+	xserver-xorg-core \
+	x11-xserver-utils \
+	librsvg2-common \
+	xz-utils && \
     ln -fs /usr/share/zoneinfo/UTC /etc/localtime && dpkg-reconfigure -f noninteractive tzdata && \
     apt-get update -y && \
     apt-get -y --no-install-recommends install \                            																						
