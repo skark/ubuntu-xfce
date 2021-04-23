@@ -1,4 +1,4 @@
-FROM ubuntu:latest as builder
+FROM ubuntu:rolling as builder
 
 SHELL ["/bin/bash", "-c"]
 
@@ -35,7 +35,7 @@ RUN set -o xtrace && \
         nasm \
         pkg-config \
         pulseaudio \        
-        python-libxml2 \
+        python \
         xserver-xorg-core \
         xserver-xorg-dev \
         xsltproc && \
@@ -91,7 +91,7 @@ COPY autostartup.sh /final/root/autostartup.sh
     
 RUN ls -alR /final
 
-FROM ubuntu:latest
+FROM ubuntu:rolling
 
 RUN set -o xtrace && \
     export DEBIAN_FRONTEND=noninteractive && \
@@ -110,6 +110,7 @@ RUN set -o xtrace && \
 	xfce4-taskmanager \
 	xfce4-terminal \	
 	ristretto \
+        heif-gdk-pixbuf \	
 	parole \
 	thunar \
 	tumbler \
@@ -124,6 +125,7 @@ RUN set -o xtrace && \
         wget \
         xserver-xorg-core \
         x11-xserver-utils \
+        librsvg2-common \
         xz-utils && \
     ln -fs /usr/share/zoneinfo/UTC /etc/localtime && dpkg-reconfigure -f noninteractive tzdata && \
     apt-get update -y && \
@@ -139,4 +141,3 @@ COPY --from=builder /final /
 CMD ["/bin/bash", "/root/autostartup.sh"]
                                     
 EXPOSE 3389
-
