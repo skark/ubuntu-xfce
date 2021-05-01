@@ -9,8 +9,8 @@ RUN set -o xtrace && \
     cd /root && \
     sed -i 's/^#\s*\(deb.*partner\)$/\1/g' /etc/apt/sources.list && \
     sed -i 's/^#\s*\(deb.*restricted\)$/\1/g' /etc/apt/sources.list && \ 
-    apt-get update -y --allow-unauthenticated && \
-    apt-get -y --allow-unauthenticated install \
+    apt-get update -y && \
+    apt-get -y install \
         autoconf \
         bison \
         build-essential \
@@ -39,7 +39,7 @@ RUN set -o xtrace && \
         xserver-xorg-core \
         xserver-xorg-dev \
         xsltproc && \
-    apt-get --allow-unauthenticated update && \
+    apt-get update && \
     apt build-dep pulseaudio -y && \
     mkdir -p /tmp/pulse && \
     cd /tmp/pulse && \
@@ -98,9 +98,9 @@ RUN set -o xtrace && \
     cd /root && \
     sed -i 's/^#\s*\(deb.*partner\)$/\1/g' /etc/apt/sources.list && \
     sed -i 's/^#\s*\(deb.*restricted\)$/\1/g' /etc/apt/sources.list && \ 
-    apt-get update -y --allow-unauthenticated && \ 
-    apt-get install -yqq --allow-unauthenticated locales  && \ 
-    apt-get install --no-install-recommends --allow-unauthenticated -yqq \
+    apt-get update -y && \ 
+    apt-get install -yqq locales  && \ 
+    apt-get install --no-install-recommends -yqq \
 	xfwm4 xfdesktop4 xfce4-panel xfce4-session dbus-x11 \
 	xfce4-clipman-plugin \
 	xfce4-cpugraph-plugin \
@@ -128,8 +128,8 @@ RUN set -o xtrace && \
 	librsvg2-common \
 	xz-utils && \
     ln -fs /usr/share/zoneinfo/UTC /etc/localtime && dpkg-reconfigure -f noninteractive tzdata && \
-    apt-get update -y --allow-unauthenticated && \
-    apt-get -y --no-install-recommends --allow-unauthenticated install \                            																						
+    apt-get update -y && \
+    apt-get -y --no-install-recommends install \                            																						
         fuse \																
         libfdk-aac-dev && \
 	apt-get -y autoclean && apt-get -y autoremove && \
