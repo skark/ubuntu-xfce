@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+        
+  schedule:
+    - cron:  '17 5 * * 6'        
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Docker Login Build Push
+        run: |
+          docker build -t skark/ubuntu-xfce:latest -f ./Dockerfile.xfce .
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push skark/ubuntu-xfce:latest

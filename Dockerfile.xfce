@@ -1,0 +1,147 @@
+FROM ubuntu:rolling as builder
+
+SHELL ["/bin/bash", "-c"]
+
+#COPY InCtrl /usr/bin/
+
+RUN set -o xtrace && \
+    export DEBIAN_FRONTEND=noninteractive && \
+    cd /root && \
+    sed -i 's/^#\s*\(deb.*partner\)$/\1/g' /etc/apt/sources.list && \
+    sed -i 's/^#\s*\(deb.*restricted\)$/\1/g' /etc/apt/sources.list && \ 
+    apt-get update -y && \
+    apt-get -y install \
+        autoconf \
+        bison \
+        build-essential \
+        flex \
+        fuse \
+        gettext \
+        git \
+        libfdk-aac-dev \
+        libfuse-dev \
+        libjpeg-dev \
+        libmp3lame-dev \
+        libopus-dev \
+        libpam0g-dev \
+        libpulse-dev m4 intltool dpkg-dev \
+        libssl-dev \
+        libtool \
+        libx11-dev \
+        libxfixes-dev \
+        libxfont-dev \
+        libxml-parser-perl \
+        libxrandr-dev \
+        nasm \
+        pkg-config \
+        pulseaudio \        
+        python \
+        xserver-xorg-core \
+        xserver-xorg-dev \
+        xsltproc && \
+    apt-get update && \
+    apt build-dep pulseaudio -y && \
+    mkdir -p /tmp/pulse && \
+    cd /tmp/pulse && \
+    apt source pulseaudio && \
+    pulsever=$(pulseaudio --version | awk '{print $2}') && \
+    pulse_dir=$(find . -maxdepth 1 -name pulseaudio-\*) && \
+    cd $pulse_dir && \
+    meson build && \
+    cp build/config.h . && \
+    cd .. && \
+    mv $pulse_dir pulseaudio.src && \
+    git clone https://github.com/neutrinolabs/pulseaudio-module-xrdp.git && \
+    cd pulseaudio-module-xrdp && \    
+    ./bootstrap && \
+    ./configure PULSE_DIR="/tmp/pulse/pulseaudio.src" && \
+    make && \
+    cd /tmp/pulse/$pulseverdir/pulseaudio-module-xrdp/src/.libs && \
+    install -t /final/usr/lib/pulse-$pulsever/modules -D -m 644 module-xrdp-sink.so module-xrdp-source.so
+
+RUN cd /root && \
+    git clone -b devel https://github.com/neutrinolabs/xrdp.git && \
+    git clone -b devel https://github.com/neutrinolabs/xorgxrdp.git
+    
+RUN cd /root/xrdp && ./bootstrap 
+
+RUN cd /root/xrdp && \
+	./configure --enable-fuse --enable-jpeg --enable-vsock --enable-fdkaac --enable-opus --enable-mp3lame --enable-pixman && \
+	make && \
+	make DESTDIR=/packages install
+
+RUN ls -R /packages && pushd /packages && mv lib ./usr/ && cp -r . / && cp -r . /final && popd
+
+RUN cd /root/xorgxrdp && ./bootstrap && ./configure && make && make DESTDIR=/packages install
+
+RUN ls -alR /packages
+RUN pushd /packages && cp --parents `find -name \*.so*` /final/ && popd
+RUN pushd /packages && mkdir -p /final/etc/X11 && cp etc/X11/xrdp/xorg.conf /final/etc/X11/ && popd
+
+RUN sed -i '/TerminalServerUsers/d' /final/etc/xrdp/sesman.ini  && \
+    sed -i '/TerminalServerAdmins/d' /final/etc/xrdp/sesman.ini  && \
+    sed -i -e '/DisconnectedTimeLimit=/ s/=.*/=0/' /final/etc/xrdp/sesman.ini && \
+    sed -i -e '/IdleTimeLimit=/ s/=.*/=0/' /final/etc/xrdp/sesman.ini && \
+    sed -i "s/xrdp\/xorg/xorg/g" /final/etc/xrdp/sesman.ini
+    
+RUN mkdir -p /final/var/run/xrdp && \
+    chmod 2775 /final/var/run/xrdp  && \
+    mkdir -p /final/var/run/xrdp/sockdir && \
+    chmod 3777 /final/var/run/xrdp/sockdir
+
+COPY etc /final/etc
+
+COPY autostartup.sh /final/root/autostartup.sh
+    
+RUN ls -alR /final
+
+FROM ubuntu:rolling
+
+RUN set -o xtrace && \
+    export DEBIAN_FRONTEND=noninteractive && \
+    cd /root && \
+    sed -i 's/^#\s*\(deb.*partner\)$/\1/g' /etc/apt/sources.list && \
+    sed -i 's/^#\s*\(deb.*restricted\)$/\1/g' /etc/apt/sources.list && \ 
+    apt-get update -y && \ 
+    apt-get install -yqq locales  && \ 
+    apt-get install --no-install-recommends -yqq \
+	xfwm4 xfdesktop4 xfce4-panel xfce4-session dbus-x11 \
+	xfce4-clipman-plugin \
+	xfce4-cpugraph-plugin \
+	xfce4-netload-plugin \
+	xfce4-pulseaudio-plugin \
+	pavucontrol \
+	xfce4-taskmanager \
+	xfce4-terminal \	
+	ristretto \
+	heif-gdk-pixbuf \	
+	parole \
+	thunar \
+	tumbler \
+	geany \
+	pulseaudio \
+	ca-certificates \
+	curl \
+	sudo \
+	supervisor \
+	cron \
+	tzdata \
+	wget \
+	xserver-xorg-core \
+	x11-xserver-utils \
+	librsvg2-common \
+	xz-utils && \
+    ln -fs /usr/share/zoneinfo/UTC /etc/localtime && dpkg-reconfigure -f noninteractive tzdata && \
+    apt-get update -y && \
+    apt-get -y --no-install-recommends install \                            																						
+        fuse \																
+        libfdk-aac-dev && \
+	apt-get -y autoclean && apt-get -y autoremove && \
+	apt-get -y purge $(dpkg --get-selections | grep deinstall | sed s/deinstall//g) && \
+	rm -rf /var/lib/apt/lists/*
+     
+COPY --from=builder /final /
+
+CMD ["/bin/bash", "/root/autostartup.sh"]
+                                    
+EXPOSE 3389
