@@ -111,5 +111,3 @@ Please note some clients need an extra parameter set glyph-cache. xfreerdp, remm
 Linux example of how to connect ```xfreerdp /v:xxx.xxx.xxx.xxx /drive:home,/home/xxxx +clipboard +glyph-cache```
 
 Based on code from https://github.com/RattyDAVE/docker-ubuntu-xrdp-mate-custom
-
-
